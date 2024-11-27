@@ -1,6 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+
 from .models import Meal, Rating
 from .serializers import MealSerializer, RatingSerializer
 from django.contrib.auth.models import User
@@ -8,14 +11,15 @@ from django.contrib.auth.models import User
 class MealViewSet(viewsets.ModelViewSet):
     queryset = Meal.objects.all()
     serializer_class = MealSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @action(methods='POST', detail=True)
     def rate_meal(self, request, pk=None):
         if 'stars' in request.data:
             meal = Meal.objects.get(id=pk)
             stars = request.data['stars']
-            username = request.data['username']
-            user = User.objects.get(username=username)
+            user = request.user
             try:
                 rating.save()
                 serializer = RatingSerializer(rating, many=False)
@@ -40,4 +44,12 @@ class MealViewSet(viewsets.ModelViewSet):
 class RatingViewSet(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
- 
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        response = {
+            'message': 'Invalid way to create or update '
+            }
+
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
