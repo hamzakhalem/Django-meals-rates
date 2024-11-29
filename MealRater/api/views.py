@@ -74,5 +74,4 @@ class RatingViewSet(viewsets.ModelViewSet):
         response = {
             'message': 'Invalid way to create or update '
             }
-
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
